@@ -1,12 +1,22 @@
-FROM golang:1.20.4 as BUILD
+FROM golang:1.23.2-alpine AS builder
+
 WORKDIR /app
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
 COPY . .
 
-RUN make build-linux
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o app .
 
-FROM alpine:3.18.0
-WORKDIR /app
+FROM alpine:3.21
 
-COPY --from=BUILD /app/bin/app /app/app
+WORKDIR /root/
 
-ENTRYPOINT ["/app/app"]
+COPY --from=builder /app/app .
+
+COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip .
+ENV ZONEINFO=/root/zoneinfo.zip
+
+CMD ["./app"]
