@@ -87,6 +87,9 @@ func main() {
 func api(w http.ResponseWriter, req *http.Request) {
 	// * Set Response Header and Status
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.WriteHeader(http.StatusOK)
 
 	// * Get Request Body
